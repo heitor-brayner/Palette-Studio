@@ -1,0 +1,149 @@
+<Page
+    x:Class="PaletteStudio.Views.PalettePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PaletteStudio.Views"
+    xmlns:models="using:PaletteStudio.Models"
+    xmlns:vm="using:PaletteStudio.ViewModels"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="Transparent">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="{StaticResource SpacingL}" Padding="32,24">
+
+            <!-- ── Page header ─────────────────────────────────────── -->
+            <StackPanel Spacing="{StaticResource SpacingXS}">
+                <TextBlock Text="Palette Studio"
+                           Style="{StaticResource TitleTextBlockStyle}"/>
+                <TextBlock Text="Drop an image or browse to extract its dominant colors."
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
+
+            <!-- ── Drop zone ───────────────────────────────────────── -->
+            <Border x:Name="DropZoneBorder"
+                    Style="{StaticResource DropZoneStyle}"
+                    AllowDrop="True"
+                    DragOver="DropZone_DragOver"
+                    DragLeave="DropZone_DragLeave"
+                    Drop="DropZone_Drop"
+                    AutomationProperties.Name="Image drop zone">
+                <Grid>
+                    <!-- Idle state (hidden while loading) -->
+                    <StackPanel HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Spacing="{StaticResource SpacingM}"
+                                Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolNegationToVisibilityConverter}}">
+                        <FontIcon Glyph="&#xE8B9;"
+                                  FontSize="48"
+                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                  HorizontalAlignment="Center"/>
+                        <TextBlock Text="Drop image here"
+                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="PNG · JPG · WEBP · BMP"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   HorizontalAlignment="Center"/>
+                        <Button Content="Browse…"
+                                Command="{x:Bind ViewModel.BrowseImageCommand}"
+                                HorizontalAlignment="Center"
+                                Style="{StaticResource AccentButtonStyle}"
+                                AutomationProperties.Name="Browse for image file"/>
+                    </StackPanel>
+
+                    <!-- Loading state -->
+                    <StackPanel HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Spacing="{StaticResource SpacingM}"
+                                Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}">
+                        <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                                      Width="48" Height="48"
+                                      AutomationProperties.Name="Extracting colors"/>
+                        <TextBlock Text="Extracting colors…"
+                                   HorizontalAlignment="Center"
+                                   Style="{StaticResource BodyTextBlockStyle}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ── Source file label ───────────────────────────────── -->
+            <TextBlock Text="{x:Bind ViewModel.SourceName, Mode=OneWay}"
+                       Style="{StaticResource CaptionTextBlockStyle}"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       Visibility="{x:Bind ViewModel.SourceName, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}"/>
+
+            <!-- ── Error banner ────────────────────────────────────── -->
+            <InfoBar Severity="Error"
+                     Title="Error"
+                     Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                     IsOpen="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource NullToBoolConverter}}"
+                     IsClosable="True"
+                     AutomationProperties.Name="Error message"/>
+
+            <!-- ── Swatch grid ─────────────────────────────────────── -->
+            <ItemsRepeater x:Name="SwatchRepeater"
+                           ItemsSource="{x:Bind ViewModel.Colors, Mode=OneWay}"
+                           AutomationProperties.Name="Color swatches">
+                <ItemsRepeater.Layout>
+                    <UniformGridLayout MinItemWidth="120"
+                                       MinItemHeight="160"
+                                       MinRowSpacing="16"
+                                       MinColumnSpacing="16"/>
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate x:DataType="models:ColorModel">
+                        <Border Style="{StaticResource SwatchCardStyle}"
+                                Tapped="SwatchCard_Tapped"
+                                AutomationProperties.Name="{x:Bind Hex}">
+                            <Border.Shadow>
+                                <ThemeShadow/>
+                            </Border.Shadow>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Color preview block -->
+                                <Border x:Name="ColorPreviewBlock"
+                                        Grid.Row="0"
+                                        Height="{StaticResource SwatchColorBlockHeight}"
+                                        CornerRadius="10,10,0,0">
+                                    <Border.Background>
+                                        <SolidColorBrush Color="{x:Bind ToColor()}"/>
+                                    </Border.Background>
+                                </Border>
+
+                                <!-- Hex label + copy button -->
+                                <Grid Grid.Row="1" Padding="8,6" ColumnSpacing="4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                               Text="{x:Bind Hex}"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               VerticalAlignment="Center"
+                                               FontFamily="Cascadia Code, Consolas"
+                                               FontSize="11"/>
+                                    <Button Grid.Column="1"
+                                            Width="28" Height="28"
+                                            Padding="0"
+                                            Click="CopyHex_Click"
+                                            ToolTipService.ToolTip="Copy hex"
+                                            AutomationProperties.Name="Copy hex value">
+                                        <FontIcon Glyph="&#xE8C8;" FontSize="12"/>
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

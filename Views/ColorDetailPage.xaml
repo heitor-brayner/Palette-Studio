@@ -1,0 +1,131 @@
+<Page
+    x:Class="PaletteStudio.Views.ColorDetailPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PaletteStudio.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="Transparent">
+
+    <Grid Padding="32,24" RowSpacing="{StaticResource SpacingL}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ── Toolbar ───────────────────────────────────────────── -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0"
+                    Command="{x:Bind ViewModel.GoBackCommand}"
+                    Style="{StaticResource DefaultButtonStyle}"
+                    AutomationProperties.Name="Go back to palette">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE76B;" FontSize="14"/>
+                    <TextBlock Text="Back"/>
+                </StackPanel>
+            </Button>
+
+            <TextBlock Grid.Column="1"
+                       Text="Color Detail"
+                       Style="{StaticResource SubtitleTextBlockStyle}"
+                       VerticalAlignment="Center"
+                       Margin="16,0"/>
+
+            <Button Grid.Column="2"
+                    Content="Copy Hex"
+                    Command="{x:Bind ViewModel.CopyHexCommand}"
+                    Style="{StaticResource AccentButtonStyle}"
+                    AutomationProperties.Name="Copy hex value to clipboard"/>
+        </Grid>
+
+        <!-- ── Content ──────────────────────────────────────────── -->
+        <Grid Grid.Row="1" ColumnSpacing="{StaticResource SpacingL}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Color preview (ConnectedAnimation target) -->
+            <Border x:Name="ColorPreviewRect"
+                    Width="{StaticResource ColorDetailPreviewSize}"
+                    Height="{StaticResource ColorDetailPreviewSize}"
+                    CornerRadius="{StaticResource CornerRadiusCard}"
+                    AutomationProperties.Name="Color preview">
+                <Border.Background>
+                    <SolidColorBrush Color="{x:Bind ViewModel.PreviewBrush.Color, Mode=OneWay}"/>
+                </Border.Background>
+                <Border.Shadow>
+                    <ThemeShadow/>
+                </Border.Shadow>
+            </Border>
+
+            <!-- Editor panel -->
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="{StaticResource SpacingL}">
+
+                    <!-- Hex field -->
+                    <Border Style="{StaticResource PageCardStyle}">
+                        <StackPanel Spacing="{StaticResource SpacingS}">
+                            <TextBlock Text="HEX"
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBox Text="{x:Bind ViewModel.HexText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     FontFamily="Cascadia Code, Consolas"
+                                     AutomationProperties.Name="Hex color value"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- RGB sliders -->
+                    <Border Style="{StaticResource PageCardStyle}">
+                        <StackPanel Spacing="{StaticResource SpacingM}">
+                            <TextBlock Text="RGB"
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <local:LabeledSlider Label="R"
+                                                 Value="{x:Bind ViewModel.R, Mode=TwoWay}"
+                                                 Minimum="0" Maximum="255"
+                                                 AutomationName="Red channel"/>
+                            <local:LabeledSlider Label="G"
+                                                 Value="{x:Bind ViewModel.G, Mode=TwoWay}"
+                                                 Minimum="0" Maximum="255"
+                                                 AutomationName="Green channel"/>
+                            <local:LabeledSlider Label="B"
+                                                 Value="{x:Bind ViewModel.B, Mode=TwoWay}"
+                                                 Minimum="0" Maximum="255"
+                                                 AutomationName="Blue channel"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- HSL sliders -->
+                    <Border Style="{StaticResource PageCardStyle}">
+                        <StackPanel Spacing="{StaticResource SpacingM}">
+                            <TextBlock Text="HSL"
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <local:LabeledSlider Label="H"
+                                                 Value="{x:Bind ViewModel.Hue, Mode=TwoWay}"
+                                                 Minimum="0" Maximum="360"
+                                                 AutomationName="Hue"/>
+                            <local:LabeledSlider Label="S"
+                                                 Value="{x:Bind ViewModel.Saturation, Mode=TwoWay}"
+                                                 Minimum="0" Maximum="100"
+                                                 AutomationName="Saturation"/>
+                            <local:LabeledSlider Label="L"
+                                                 Value="{x:Bind ViewModel.Lightness, Mode=TwoWay}"
+                                                 Minimum="0" Maximum="100"
+                                                 AutomationName="Lightness"/>
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Page>

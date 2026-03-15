@@ -1,0 +1,113 @@
+<Page
+    x:Class="PaletteStudio.Views.ExportPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:models="using:PaletteStudio.Models"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="Transparent">
+
+    <Grid Padding="32,24" RowSpacing="{StaticResource SpacingL}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ── Page header ─────────────────────────────────────── -->
+        <StackPanel Grid.Row="0" Spacing="{StaticResource SpacingXS}">
+            <TextBlock Text="Export"
+                       Style="{StaticResource TitleTextBlockStyle}"/>
+            <TextBlock Text="Choose a format and copy or save your palette."
+                       Style="{StaticResource BodyTextBlockStyle}"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+        </StackPanel>
+
+        <!-- ── Palette preview strip ───────────────────────────── -->
+        <Border Grid.Row="1"
+                Style="{StaticResource PageCardStyle}"
+                Padding="16">
+            <StackPanel Spacing="{StaticResource SpacingS}">
+                <TextBlock Text="Current palette"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Colors, Mode=OneWay}"
+                               AutomationProperties.Name="Palette preview strip">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Orientation="Horizontal" Spacing="8"/>
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="models:ColorModel">
+                            <Border Width="40" Height="40"
+                                    CornerRadius="{StaticResource CornerRadiusChip}"
+                                    ToolTipService.ToolTip="{x:Bind Hex}"
+                                    AutomationProperties.Name="{x:Bind Hex}">
+                                <Border.Background>
+                                    <SolidColorBrush Color="{x:Bind ToColor()}"/>
+                                </Border.Background>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </StackPanel>
+        </Border>
+
+        <!-- ── Format tabs ─────────────────────────────────────── -->
+        <TabView Grid.Row="2"
+                 SelectedIndex="{x:Bind ViewModel.SelectedFormatIndex, Mode=TwoWay}"
+                 IsAddTabButtonVisible="False"
+                 TabWidthMode="SizeToContent"
+                 AutomationProperties.Name="Export format selector">
+            <TabViewItem Header="CSS Variables"
+                         AutomationProperties.Name="CSS Variables format"
+                         IsClosable="False"/>
+            <TabViewItem Header="XAML ResourceDictionary"
+                         AutomationProperties.Name="XAML ResourceDictionary format"
+                         IsClosable="False"/>
+            <TabViewItem Header="JSON"
+                         AutomationProperties.Name="JSON format"
+                         IsClosable="False"/>
+        </TabView>
+
+        <!-- ── Code preview ────────────────────────────────────── -->
+        <Border Grid.Row="3"
+                Style="{StaticResource PageCardStyle}"
+                Padding="0">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Auto"
+                          Padding="16">
+                <TextBlock Text="{x:Bind ViewModel.PreviewText, Mode=OneWay}"
+                           Style="{StaticResource CodeTextStyle}"
+                           IsTextSelectionEnabled="True"
+                           AutomationProperties.Name="Export code preview"/>
+            </ScrollViewer>
+        </Border>
+
+        <!-- ── Action bar ──────────────────────────────────────── -->
+        <StackPanel Grid.Row="4"
+                    Orientation="Horizontal"
+                    Spacing="{StaticResource SpacingM}"
+                    HorizontalAlignment="Right">
+            <Button Command="{x:Bind ViewModel.CopyToClipboardCommand}"
+                    AutomationProperties.Name="Copy export code to clipboard">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE8C8;" FontSize="14"/>
+                    <TextBlock Text="Copy"/>
+                </StackPanel>
+            </Button>
+            <Button Command="{x:Bind ViewModel.SaveToFileCommand}"
+                    Style="{StaticResource AccentButtonStyle}"
+                    IsEnabled="{x:Bind ViewModel.IsSaving, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                    AutomationProperties.Name="Save export to file">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE74E;" FontSize="14"/>
+                    <TextBlock Text="Save…"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+
+    </Grid>
+</Page>
