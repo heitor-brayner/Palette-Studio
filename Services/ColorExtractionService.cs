@@ -2,7 +2,7 @@ using PaletteStudio.Contracts;
 using PaletteStudio.Models;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
-using Windows.Storage.Streams;
+using Windows.Storage.Streams; // IRandomAccessStream
 
 namespace PaletteStudio.Services;
 
@@ -36,6 +36,9 @@ public sealed class ColorExtractionService : IColorExtractionService
 
     // -------------------------------------------------------------------------
     // Step 1 — decode pixels via BitmapDecoder (Windows imaging API)
+    //
+    // We use GetPixelDataAsync + DetachPixelData() which returns a plain byte[]
+    // with no WinRT IBuffer interop required — cleaner on .NET 9.
     // -------------------------------------------------------------------------
     private static async Task<List<Rgb>> ReadPixelsAsync(
         string filePath, CancellationToken ct)
@@ -48,17 +51,21 @@ public sealed class ColorExtractionService : IColorExtractionService
 
         var decoder = await BitmapDecoder.CreateAsync(stream).AsTask(ct).ConfigureAwait(false);
 
-        // Request the frame as BGRA8 (4 bytes per pixel) at native resolution.
-        var frame = await decoder.GetSoftwareBitmapAsync(
-            BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore)
+        uint width  = decoder.PixelWidth;
+        uint height = decoder.PixelHeight;
+
+        // GetPixelDataAsync returns BGRA8 pixels as a plain managed byte array.
+        // No SoftwareBitmap / IBuffer interop needed.
+        var pixelProvider = await decoder.GetPixelDataAsync(
+            BitmapPixelFormat.Bgra8,
+            BitmapAlphaMode.Ignore,
+            new BitmapTransform(),
+            ExifOrientationMode.IgnoreExifOrientation,
+            ColorManagementMode.DoNotColorManage)
             .AsTask(ct).ConfigureAwait(false);
 
-        uint width  = (uint)frame.PixelWidth;
-        uint height = (uint)frame.PixelHeight;
-
-        // Copy pixel bytes into a managed array — 4 bytes per pixel (B G R A).
-        var buffer = new byte[width * height * 4];
-        frame.CopyToBuffer(buffer.AsBuffer());
+        // DetachPixelData() hands ownership of the byte[] to us — 4 bytes per pixel (B G R A).
+        var buffer = pixelProvider.DetachPixelData();
 
         var pixels = new List<Rgb>((int)(width * height / (SampleStride * SampleStride)));
 

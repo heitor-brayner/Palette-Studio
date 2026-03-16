@@ -13,3 +13,7 @@ _pkginfo.txt
 *.appx
 *.appxbundle
 *.appxupload
+
+# Build output logs
+xaml_stdout.txt
+xaml_stderr.txt

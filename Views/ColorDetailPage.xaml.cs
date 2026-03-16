@@ -1,3 +1,4 @@
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
@@ -22,16 +23,9 @@ public sealed partial class ColorDetailPage : Page
 
         if (e.Parameter is ColorModel color)
             ViewModel.LoadColor(color);
-    }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
-    {
-        base.OnNavigatedTo(e);
-
-        // Play the ConnectedAnimation to the preview rectangle.
-        // REASON: TryStart returns false gracefully if no animation was prepared
-        // (e.g. user navigated via keyboard), so this is safe to call unconditionally.
-        // Using Loaded to ensure the element is in the visual tree before starting.
+        // Defer the ConnectedAnimation until the element is in the visual tree.
+        // REASON: TryStart fails silently if the target element is not yet rendered.
         Loaded += OnPageLoaded;
     }
 
