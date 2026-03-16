@@ -2,7 +2,7 @@
 
 A WinUI 3 desktop app that extracts dominant color palettes from images and exports them in formats ready for designers and developers.
 
-![Settings page](https://raw.githubusercontent.com/placeholder/palette-studio/main/docs/screenshot.png)
+<video src="docs/demo.mp4" controls width="100%"></video>
 
 ---
 
