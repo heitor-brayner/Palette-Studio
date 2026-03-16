@@ -16,7 +16,7 @@ public sealed partial class SettingsViewModel : ObservableObject
     public string AppVersion { get; } =
         Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.0";
 
-    public string GitHubUrl => "https://github.com/your-username/palette-studio";
+    public string GitHubUrl => "https://github.com/heitor-brayner/Palette-Studio";
 
     public SettingsViewModel(IThemeService themeService)
     {

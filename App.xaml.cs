@@ -35,8 +35,10 @@ public partial class App : Application
         services.AddSingleton<IColorExtractionService, ColorExtractionService>();
 
         // ViewModels
-        services.AddTransient<PaletteViewModel>();
-        services.AddTransient<ColorDetailViewModel>();
+        // PaletteViewModel is singleton so ExportPage and ColorDetailPage read
+        // the same Colors collection that PalettePage populated.
+        services.AddSingleton<PaletteViewModel>();
+        services.AddSingleton<ColorDetailViewModel>();
         services.AddTransient<ExportViewModel>();
         services.AddTransient<SettingsViewModel>();
 

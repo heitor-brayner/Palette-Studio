@@ -8,7 +8,7 @@
     Background="Transparent">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Spacing="{StaticResource SpacingL}" Padding="32,24" MaxWidth="640" HorizontalAlignment="Stretch">
+        <StackPanel Spacing="{StaticResource SpacingL}" Padding="32,24">
 
             <!-- ── Page header ───────────────────────────────────── -->
             <TextBlock Text="Settings"
