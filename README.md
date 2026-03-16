@@ -2,8 +2,6 @@
 
 A WinUI 3 desktop app that extracts dominant color palettes from images and exports them in formats ready for designers and developers.
 
-<video src="docs/demo.mp4" controls width="100%"></video>
-
 ---
 
 ## Features
